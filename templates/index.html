@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Cancer Risk Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="rail">
+    <div class="rail-brand">
+      <span class="rail-brand-mark">MC</span>
+      <div class="rail-brand-text">
+        <span class="rail-brand-title">Multi-Cancer</span>
+        <span class="rail-brand-sub">Risk Assessment</span>
+      </div>
+    </div>
+
+    <div class="rail-section-label">Modules</div>
+    <ul class="rail-index" id="cancer-index">
+      {% for key, c in cancers.items() %}
+      <li>
+        <button class="rail-item" data-key="{{ key }}" data-tier="{{ c.tier }}">
+          <span class="rail-item-num">{{ '%02d'|format(loop.index) }}</span>
+          <span class="rail-item-label">{{ c.label }}</span>
+          <span class="rail-item-tier tier-{{ c.tier }}"></span>
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <div class="rail-legend">
+      <div class="rail-legend-title">Data tier</div>
+      <div class="legend-row"><span class="tier-dot tier-1"></span> Real clinical data</div>
+      <div class="legend-row"><span class="tier-dot tier-2"></span> Real, with caveats</div>
+      <div class="legend-row"><span class="tier-dot tier-3"></span> Synthetic / illustrative</div>
+    </div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <header class="main-header">
+      <div class="header-eyebrow">Patient Intake &mdash; Random Forest Screening</div>
+      <h1 id="active-title">Select a module to begin</h1>
+      <div class="header-meta">
+        <span id="active-tier-badge" class="tier-badge"></span>
+        <span id="active-tier-note" class="tier-note"></span>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- INTAKE FORM -->
+      <section class="chart-panel">
+        <div class="chart-panel-head">
+          <span class="chart-panel-title">Intake Chart</span>
+          <span class="chart-panel-hint">enter test values</span>
+        </div>
+        <form id="intake-form" class="intake-form">
+          <div id="form-fields" class="form-fields">
+            <p class="empty-hint">Choose a module from the left to load its intake fields.</p>
+          </div>
+          <button type="submit" id="run-btn" class="run-btn" disabled>Run Assessment</button>
+        </form>
+      </section>
+
+      <!-- RESULT PANEL -->
+      <section class="result-panel">
+        <div class="chart-panel-head">
+          <span class="chart-panel-title">Assessment Result</span>
+        </div>
+
+        <div id="result-empty" class="result-empty">
+          <svg class="gauge-ghost" viewBox="0 0 200 110" aria-hidden="true">
+            <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="var(--grid)" stroke-width="10" stroke-linecap="round"/>
+          </svg>
+          <p>Awaiting input</p>
+        </div>
+
+        <div id="result-content" class="result-content hidden">
+          <svg class="gauge" viewBox="0 0 200 110" aria-hidden="true">
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1F7A6C"/>
+                <stop offset="55%" stop-color="#C7CDD1"/>
+                <stop offset="100%" stop-color="#D98E04"/>
+              </linearGradient>
+            </defs>
+            <path d="M 15 100 A 85 85 0 0 1 185 100" fill="none" stroke="url(#gaugeGrad)" stroke-width="10" stroke-linecap="round"/>
+            <line id="gauge-needle" x1="100" y1="100" x2="100" y2="25" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" style="transform-origin: 100px 100px;"/>
+            <circle cx="100" cy="100" r="6" fill="var(--ink)"/>
+          </svg>
+
+          <div class="result-verdict">
+            <span class="result-label">Prediction</span>
+            <span id="result-yesno" class="result-yesno">&mdash;</span>
+          </div>
+          <div class="result-confidence">
+            <span class="result-label">Confidence</span>
+            <span id="result-confidence-value" class="mono-readout">&mdash;</span>
+          </div>
+          <p id="result-tier-note" class="result-tier-note"></p>
+        </div>
+
+        <div id="result-loading" class="result-loading hidden">
+          <div class="pulse-dot"></div> Running model&hellip;
+        </div>
+      </section>
+    </div>
+
+    <footer class="main-footer">
+      Educational portfolio project &middot; not a diagnostic tool &middot; models trained on data of varying quality &mdash; see tier badge above
+    </footer>
+  </main>
+</div>
+
+<script>
+  const CANCERS = {{ cancers | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
